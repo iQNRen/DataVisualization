@@ -1,0 +1,81 @@
+html {
+    background-color: #d6d6ba;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+svg {
+    background-color: white;
+    border: 4px solid black;
+    border-radius: 40px;
+}
+
+select {
+    position: absolute;
+    top: 2%;
+    right: 2%;
+    padding: 10px 10px;
+    font-size: 20px;
+    z-index: 99;
+}
+
+option {
+    padding: 20px;
+}
+
+.title {
+    position: absolute;
+    /* top:90%; */
+    font-size: 30px;
+    fill: red;
+    /* color: aqua; */
+}
+
+.shaft {
+    font-size: 32px;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #FF6347;
+    stroke-width: 10;
+    shape-rendering: crispEdges; /* 让线更加清晰 */
+}
+
+.legend {
+    position: absolute;
+    z-index: 99;
+}
+
+.dot {
+    background-color: red;
+}
+
+.root1 {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #d6d6ba;
+}
+
+.content {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin: 0 auto;
+    width: 60%;
+}
+
+
+
+
+
+
+
