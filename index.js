@@ -178,9 +178,9 @@ function ColumnChartProcessing(filterData) {
 }
 
 function ColumnChart(OccupationList, NoneList, OtherList, TotalList) {
-    var NoneColor = '#38bdf8';
-    var OtherColor = '#2dd4bf';
-    var AcitveColor = 'orange';
+    var NoneColor = '#b1ddf0';
+    var OtherColor = '#f2cc8f';
+    var AcitveColor = '#acb030';
     const svg = d3.select("body")
         .append("svg")
         .attr("class", "column chart")
@@ -232,7 +232,8 @@ function ColumnChart(OccupationList, NoneList, OtherList, TotalList) {
         .call(d3.axisBottom(xScale))
         .attr("marker-end", "url(#arrow-x)")
         .selectAll('text')
-        .style('fill', '#e07a5f')  // 改变文字颜色
+
+        .style('fill', '#000')  // 改变文字颜色
         .style('font-size', '14px');
     svg.append("g")
         .attr("class", "axis y-axis")
@@ -240,7 +241,7 @@ function ColumnChart(OccupationList, NoneList, OtherList, TotalList) {
         .call(d3.axisLeft(yScale))
         .attr("marker-end", "url(#arrow-y)")
         .selectAll('text')
-        .style('fill', '#e07a5f')  // 改变文字颜色
+        .style('fill', '#000')  // 改变文字颜色
         .style('font-size', '20px');
     // 显示人数
 
@@ -492,8 +493,8 @@ function LineChartProcessing(filterData) {
 }
 
 function LineChart(AgeList, MaleList, FemaleList, TotalList) {
-    var MaleColor = '#2dd4bf';
-    var FemaleColor = '#38bdf8';
+    var MaleColor = '#ff0505';
+    var FemaleColor = '#3e7cb0';
     var AcitveColor = 'orange';
     const svg = d3.select("body")
         .append("svg")
@@ -544,7 +545,7 @@ function LineChart(AgeList, MaleList, FemaleList, TotalList) {
         .call(d3.axisBottom(xScale))
         .attr("marker-end", "url(#arrow-x2)")
         .selectAll('text')
-        .style('fill', '#e07a5f')  // 改变文字颜色
+        .style('fill', '#000')  // 改变文字颜色
         .style('font-size', '20px');
     svg.append("g")
         .attr("class", "axis y-axis")
@@ -552,7 +553,7 @@ function LineChart(AgeList, MaleList, FemaleList, TotalList) {
         .call(d3.axisLeft(yScale))
         .attr("marker-end", "url(#arrow-y2)")
         .selectAll('text')
-        .style('fill', '#e07a5f')  // 改变文字颜色
+        .style('fill', '#000')  // 改变文字颜色
         .style('font-size', '20px');
 
     var line = d3.line()
@@ -831,7 +832,7 @@ function PieChart(data, arr) {
             d3.select(this)
                 .transition()
                 .duration(200)
-                .attr("d", d3.arc().innerRadius(0).outerRadius(radius * 1.1));  // outerRadius增大10%
+                .attr("d", d3.arc().innerRadius(0).outerRadius(radius * 1.2));  // outerRadius增大10%
 
             arcs.append("text")
                 .attr("id", "legend_text")
@@ -892,7 +893,7 @@ function PieChart(data, arr) {
         .enter().append("g")
         .attr("class", "legend")
         .attr("transform", function (d, i) {
-            return "translate(-30,-" + (i * 40 + 200) + ")";
+            return "translate(-30,-" + (i * 40 + 230) + ")";
         })
         .on("mouseover", function (d, i) {
             arcs.append("text")

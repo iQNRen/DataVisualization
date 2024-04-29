@@ -31,19 +31,20 @@ option {
     position: absolute;
     /* top:90%; */
     font-size: 30px;
-    fill: red;
+    fill: black;
     /* color: aqua; */
 }
 
 .shaft {
     font-size: 32px;
+    color: black;
 }
 
 .axis path,
 .axis line {
     fill: none;
-    stroke: #FF6347;
-    stroke-width: 10;
+    stroke: black;
+    stroke-width: s;
     shape-rendering: crispEdges; /* 让线更加清晰 */
 }
 
