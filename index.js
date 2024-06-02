@@ -1,4 +1,4 @@
-const svgWidth = window.innerWidth - 100;
+const svgWidth = window.innerWidth * 0.70;
 const svgHeight = window.innerHeight - 60;
 const margin = {top: 30, right: 20, bottom: 30, left: 40};
 const width = svgWidth - margin.left - margin.right;
@@ -46,7 +46,7 @@ function cleaning(data) {
     data = data.map(row => {
         const newRow = {};
         Object.keys(row).forEach(key => {
-            const trimmedKey = key.trim(); // 移除字段名周围的空格
+            const trimmedKey = key.trim();
             newRow[trimmedKey] = row[key];
         });
         return newRow;
@@ -68,19 +68,15 @@ function cleaning(data) {
         return Object.values(row).every(value => value !== ' ' && value !== null);
     });
 
-    // 打印结果，检查数据是否已清理
-    // console.table(data);
 
     return data;
 }
 
 function filtering(data) {
-    // 采样
     let sampleRate = 0.8;
     let samples = data.filter(() => Math.random() < sampleRate);
     console.log(samples)
 
-    // 过滤
     let mappedData = samples.map((d) => {
         return {
             "Gender": d["Gender"],
@@ -108,6 +104,30 @@ function drawChart(filterData) {
     });
     document.body.appendChild(selectElement);
 
+    let div = d3.select("body")
+        .append("div")
+        .attr("class", "intro")
+        .style("margin-right", "20px")
+
+    let intro1 = div.append("div").attr("class", "columnIntro introduce").style("display", "none");
+    let intro2 = div.append("div").attr("class", "lineIntro introduce").style("display", "none");
+    let intro3 = div.append("div").attr("class", "pieIntro introduce").style("display", "none");
+
+    intro1.append('h1').text('职业与睡眠水平柱状图');
+    intro1.append('h3').text('根据数据集内的Occupation字段，对各职业的各睡眠水平（即Sleep Disorder字段）进行统计，因为Sleep Disorder字段取值有None（正常）, Insomnia（失眠）, Sleep Apnea（睡眠呼吸暂停）等，为方便可视化，提高效率。把Insomnia和Sleep Apnea两个结果统计为Other情况。即最后只需展示None和Other。')
+    intro1.append('h3').text('在这个柱状图中，每一个矩阵都用来显示对应的睡眠人数，它包含两种不同的颜色区域。可以根据整个矩形（总人数）减去下面矩形（睡眠正常）快速算出上面矩形（即睡眠不正常的人数）。')
+    intro1.append('h3').text('通过这个职业与睡眠水平柱状图可以清晰地展现各职业类别之间的睡眠水平差别和对比关系。')
+
+    intro2.append('h1').text('各年龄男女睡眠情况折线图');
+    intro2.append('h3').text('根据数据集各年龄（即age字段），计算每个年龄阶段，各性别的睡眠正常（即Sleep Disorder字段为None）的人数占该年龄阶段、该性别总人数。其中,每个年龄阶段、每个性别人群的总人数等于SleepDisorder字段取值为None、Insomnia或SleepApnea的人数之和。计算方法为当前年龄不同性别的Sleep Disorder字段取值为None的人数/该年龄该性别总人数。')
+    intro2.append('h3').text('在这个折线图中，每一个拐点都用来显示对应不同性别的睡眠正常的人数。')
+    intro2.append('h3').text('通过这个各年龄男女睡眠情况折线图可以清楚地展示出人们随着各年龄随年龄的睡眠水平变化趋势。也可以明显地对比男女的睡眠水平差异。')
+
+    intro3.append('h1').text('睡眠情况饼状图')
+    intro3.append('h3').text('根据数据集中的Sleep Disorder字段，计算出各种睡眠质量（None、Insomnia、Sleep Apnea）的人数所占总人数的比例。请注意，"Sleep Disorder" 字段的值包括 "None"、"Insomnia" 和 "Sleep Apnea" 对应的人数总和即为数据集的总人数。计算比例的方法是具有当前睡眠质量的人数除以总人数。')
+    intro3.append('h3').text('在这个饼图中，每一块区域都用来显示对应睡眠水平的百分比。')
+    intro3.append('h3').text('通过这个睡眠情况饼状图饼图可以清晰地展示每个睡眠水平在总数中的占比，让人一目了然地看出各个睡眠水平比重的大小。')
+
     selectElement.addEventListener('click', function () {
         console.log('You selected: ', this.value);
         const selectedValue = this.value;
@@ -115,24 +135,35 @@ function drawChart(filterData) {
             case '图一 职业与睡眠水平柱状图':
                 ColumnChartProcessing(filterData);
                 document.querySelectorAll('.chart').forEach(d => {
-                    console.log(d);
+                    d.style.display = 'none';
+                });
+                document.querySelectorAll('.introduce').forEach(d => {
                     d.style.display = 'none';
                 });
                 document.querySelector('.column').style.display = 'block';
+                document.querySelector('.columnIntro').style.display = 'block';
                 break;
             case '图二 各年龄男女睡眠情况折线图':
                 LineChartProcessing(filterData);
                 document.querySelectorAll('.chart').forEach(d => {
                     d.style.display = 'none';
                 });
+                document.querySelectorAll('.introduce').forEach(d => {
+                    d.style.display = 'none';
+                });
                 document.querySelector('.line').style.display = 'block';
+                document.querySelector('.lineIntro').style.display = 'block';
                 break;
             case '图三 睡眠情况饼状图':
                 PieChartProcesing(filterData);
                 document.querySelectorAll('.chart').forEach(d => {
                     d.style.display = 'none';
                 });
+                document.querySelectorAll('.introduce').forEach(d => {
+                    d.style.display = 'none';
+                });
                 document.querySelector('.pie').style.display = 'block';
+                document.querySelector('.pieIntro').style.display = 'block';
                 break;
             default:
                 console.log('未知方法');
@@ -141,12 +172,10 @@ function drawChart(filterData) {
 }
 
 function ColumnChartProcessing(filterData) {
-    // 统计职业数量
     let OccupationSet = new Set();
     filterData.map((item) => {
         OccupationSet.add(item.Occupation)
     })
-    // 计算各职业不同睡眠水平的人数
     let NoneMap = new Map();
     let OtherMap = new Map();
     let TotalMap = new Map();
@@ -163,17 +192,10 @@ function ColumnChartProcessing(filterData) {
         }
         TotalMap.set(value["Occupation"], TotalMap.get(value["Occupation"]) + 1);
     })
-
-    // 转成数组
-    // 各种职业
     let OccupationList = Array.from(NoneMap.keys());
-    // 各职业睡眠水平为正常人数
     let NoneList = Array.from(NoneMap.values());
-    // 各职业睡眠水平不正常人数
     let OtherList = Array.from(OtherMap.values());
-    // 各职业总的人数
     let TotalList = Array.from(TotalMap.values());
-    // 画图
     ColumnChart(OccupationList, NoneList, OtherList, TotalList);
 }
 
@@ -191,78 +213,71 @@ function ColumnChart(OccupationList, NoneList, OtherList, TotalList) {
         .style("background-color", 'red')
         .attr("transform", "translate(" + margin.left + ",-" + margin.top + ")");
 
-    // 在SVG元素中定义箭头marker
     svg.append("defs").append("marker")
-        .attr("id", "arrow-x")        // arrow的ID，用于后续引用
-        .attr("viewBox", "0 0 10 10") // 箭头的坐标系统
-        .attr("refX", 3)            // 箭头X方向上的参考点
-        .attr("refY", 7)            // 箭头Y方向上的参考点
-        .attr("markerWidth", 3)     // 箭头的宽度
-        .attr("markerHeight", 3)    // 箭头的高度
-        .attr("orient", "0") // 箭头的方向根据线条自动调整
-        .append("path")             // 设置箭头的形状
+        .attr("id", "arrow-x")
+        .attr("viewBox", "0 0 10 10")
+        .attr("refX", 3)
+        .attr("refY", 7)
+        .attr("markerWidth", 5)
+        .attr("markerHeight", 5)
+        .attr("orient", "0")
+        .append("path")
         .attr("d", "M 0 0 L 10 5 L 0 10 z")
-        .style("fill", "#555");    // 设置箭头的颜色
+        .style("fill", "#555");
     svg.append("defs").append("marker")
-        .attr("id", "arrow-y")        // arrow的ID，用于后续引用
-        .attr("viewBox", "0 0 10 10") // 箭头的坐标系统
-        .attr("refX", 3)            // 箭头X方向上的参考点
-        .attr("refY", 3)            // 箭头Y方向上的参考点
-        .attr("markerWidth", 3)     // 箭头的宽度
-        .attr("markerHeight", 3)    // 箭头的高度
-        .attr("orient", "270") // 箭头的方向根据线条自动调整
-        .append("path")             // 设置箭头的形状
+        .attr("id", "arrow-y")
+        .attr("viewBox", "0 0 10 10")
+        .attr("refX", 3)
+        .attr("refY", 3)
+        .attr("markerWidth", 5)
+        .attr("markerHeight", 5)
+        .attr("orient", "270")
+        .append("path")
         .attr("d", "M 0 0 L 10 5 L 0 10 z")
-        .style("fill", "#555");    // 设置箭头的颜色
+        .style("fill", "#555");
 
 
-    // 定义 x 和 y 的比例尺
+    let high = height;
     const xScale = d3.scaleBand()
         .domain(OccupationList.map((d) => d))
         .range([0, width])
         .padding(0.4);
     const yScale = d3.scaleLinear()
         .domain([0, d3.max(TotalList) + 10])
-        .range([height, 100]);
-    // 创建 x 和 y 轴
+        .range([high, 100]);
     svg.append("g")
         .attr("class", "axis x-axis")
-        .attr("transform", "translate(0," + height + ")")
-        .attr('stroke-width', 2)
+        .attr("transform", "translate(0," + high + ")")
+        .attr('stroke-width', 12)
         .call(d3.axisBottom(xScale))
         .attr("marker-end", "url(#arrow-x)")
         .selectAll('text')
+        .style('fill', '#000')
+        .style('font-size', '14px')
+        .style("text-anchor", "end")
+        .attr("dx", "4.2em")
+        .attr("dy", "3.4em")
+        // .attr("transform", "rotate(-45)");
+    // // .style('transform-origin','bottom')
+.
+    style('transform', 'rotate(25deg)')
+    // .attr("padding", "100px");
 
-        .style('fill', '#000')  // 改变文字颜色
-        .style('font-size', '14px');
     svg.append("g")
         .attr("class", "axis y-axis")
-        .attr('stroke-width', 2)
+        .attr('stroke-width', 12)
         .call(d3.axisLeft(yScale))
         .attr("marker-end", "url(#arrow-y)")
         .selectAll('text')
-        .style('fill', '#000')  // 改变文字颜色
+        .style('fill', '#000')
         .style('font-size', '20px');
-    // 显示人数
 
     svg.selectAll(".axis line").remove();
-    // svg.selectAll("rect")
-    //     .data(TotalList)
-    //     .enter()
-    //     .append("text")
-    //     .text((d) => d)
-    //     .attr("y", (d) => yScale(d) - 5)
-    //     .attr("text-anchor", "middle")
-    //     .attr("fill", "black")
-    //     .attr("font-size", "28px")
-    //     .attr('transform', function (d, i) {
-    //         return "translate(" + [(xScale.bandwidth() * 5 / 3) * i + xScale.bandwidth(), 0] + ")";
-    //     });
-    svg.append("text")
-        .attr("class", "title")
-        .attr("x", svgWidth / 3)
-        .attr("y", svgHeight)
-        .text("图一 职业与睡眠水平柱状图")
+    // svg.append("text")
+    //     .attr("class", "title")
+    //     .attr("x", svgWidth / 3)
+    //     .attr("y", svgHeight)
+    //     .text("图一 职业与睡眠水平柱状图")
     svg.append("text")
         .attr("class", "shaft")
         .attr("x", -20)
@@ -270,11 +285,10 @@ function ColumnChart(OccupationList, NoneList, OtherList, TotalList) {
         .text("人数")
     svg.append("text")
         .attr("class", "shaft")
-        .attr("x", svgWidth - margin.left * 5)
-        .attr("y", height + margin.top + margin.bottom)
-        .text("各种职业")
+        .attr("x", svgWidth - margin.left * 2.7)
+        .attr("y", height + margin.top - margin.bottom*2)
+        .text("职业")
 
-    // 创建柱子
     svg.selectAll("rect")
         .data(TotalList)
         .enter()
@@ -283,19 +297,9 @@ function ColumnChart(OccupationList, NoneList, OtherList, TotalList) {
             return "rect_" + i;
         })
         .attr("class", "rect")
-        .attr("y", (d) => yScale(d))
-        .attr("width", xScale.bandwidth())
-        .attr("height", (d) => height - yScale(d))
-        .attr("fill", NoneColor)
-
-        .attr('transform', function (d, i) {
-            return "translate(" + [(xScale.bandwidth() * 5 / 3) * i + xScale.bandwidth() * 3 / 5, 0] + ")";
-        })
         .on("mouseover", function () {
             d3.select(this)
                 .attr("fill", AcitveColor)
-            // let i = this.id[this.id.length - 1]
-            // d3.select(`#${this.id}`).attr("transform", "translate(" + [(xScale.bandwidth() * 5 / 3) * i + xScale.bandwidth() * 2/5, 0] + ")  scale(1.4,1)")
                 .style("cursor", "pointer");
             svg.selectAll(".text")
                 .data(TotalList)
@@ -304,7 +308,7 @@ function ColumnChart(OccupationList, NoneList, OtherList, TotalList) {
                 .attr("class", "word")
                 .text((d, i) => {
                     if (("rect_" + i) == this.id) {
-                        return TotalList[i]-NoneList[i];
+                        return TotalList[i] - NoneList[i];
                     }
                 })
                 .attr("x", (d, i) => (xScale.bandwidth()) * 1.68 * i + xScale.bandwidth())
@@ -313,15 +317,23 @@ function ColumnChart(OccupationList, NoneList, OtherList, TotalList) {
                 .attr("fill", "black")
                 .attr("font-size", "28px")
         })
-        // 鼠标离开事件
         .on("mouseout", function () {
             d3.select(this)
                 .attr("fill", NoneColor);
-            // let i = this.id[this.id.length - 1]
-            // d3.select(`#${this.id}`).attr("transform", "translate(" + [(xScale.bandwidth() * 5 / 3) * i + xScale.bandwidth() * 3 / 5, 0] + ")")
             d3.selectAll('.word').remove();
+        })
+        .attr("y", height)
+        .attr("height", 0)
+        .transition()
+        .delay((d, i) => i * 100)
+        .duration(800)
+        .attr("y", d => yScale(d))
+        .attr("width", xScale.bandwidth())
+        .attr("height", d => height - yScale(d))
+        .attr("fill", NoneColor)
+        .attr('transform', function (d, i) {
+            return "translate(" + [(xScale.bandwidth() * 5 / 3) * i + xScale.bandwidth() * 3 / 5, 0] + ")";
         });
-    ;
     svg.selectAll("rect.overThreshold")
         .data(NoneList)
         .enter()
@@ -330,18 +342,9 @@ function ColumnChart(OccupationList, NoneList, OtherList, TotalList) {
             return "rectOver_" + i;
         })
         .attr("class", "rectOver")
-        .attr("y", (d) => yScale(d))
-        .attr("width", xScale.bandwidth())
-        .attr("height", (d) => height - yScale(d))
-        .attr("fill", OtherColor)
-        .attr('transform', function (d, i) {
-            return "translate(" + [(xScale.bandwidth() * 5 / 3) * i + xScale.bandwidth() * 3 / 5, 0] + ")";
-        })
         .on("mouseover", function () {
             d3.select(this)
                 .attr("fill", AcitveColor)
-            // let i = this.id[this.id.length - 1]
-            // d3.select(`#${this.id}`).attr("transform", "translate(" + [(xScale.bandwidth() * 5 / 3) * i + xScale.bandwidth() * 2/5, 0] + ")  scale(1.4,1)")
                 .style("cursor", "pointer");
             svg.selectAll(".text")
                 .data(NoneList)
@@ -359,17 +362,25 @@ function ColumnChart(OccupationList, NoneList, OtherList, TotalList) {
                 .attr("fill", "black")
                 .attr("font-size", "28px")
         })
-        // 鼠标离开事件
         .on("mouseout", function () {
             d3.select(this)
                 .attr("fill", OtherColor);
-           //  let i = this.id[this.id.length - 1];
-           // d3.select(`#${this.id}`).attr("transform", "translate(" + [(xScale.bandwidth() * 5 / 3) * i + xScale.bandwidth() * 3 / 5, 0] + ")");
             d3.selectAll('.word').remove();
+        })
+        .attr("y", height)
+        .attr("height", 0)
+        .transition()
+        .delay((d, i) => i * 100)
+        .duration(800)
+        .attr("y", (d) => yScale(d))
+        .attr("width", xScale.bandwidth())
+        .attr("height", (d) => height - yScale(d))
+        .attr("fill", OtherColor)
+        .attr('transform', function (d, i) {
+            return "translate(" + [(xScale.bandwidth() * 5 / 3) * i + xScale.bandwidth() * 3 / 5, 0] + ")";
         });
-    ;
 
-    //图例数组，格式可自定义
+
     var data_legend = [
         {
             "name": "睡眠不好",
@@ -416,7 +427,6 @@ function ColumnChart(OccupationList, NoneList, OtherList, TotalList) {
                 .attr("fill", "black")
                 .attr("font-size", "28px")
         })
-        // 鼠标离开事件
         .on("mouseout", function () {
             d3.selectAll('.word').remove();
         });
@@ -432,7 +442,7 @@ function ColumnChart(OccupationList, NoneList, OtherList, TotalList) {
     legend.append("text")
         .attr("x", width - 40)
         .attr("y", 28)
-        .style("text-anchor", "end") //样式对齐
+        .style("text-anchor", "end")
         .text(function (d) {
             return d.name;
         });
@@ -440,12 +450,10 @@ function ColumnChart(OccupationList, NoneList, OtherList, TotalList) {
 }
 
 function LineChartProcessing(filterData) {
-    // 统计年龄范围
     let ageSet = new Set();
     filterData.map((item) => {
         ageSet.add(item.Age)
     })
-    // 计算各年龄不同性别睡眠正常的人数
     let MaleMap = new Map();
     let FemaleMap = new Map();
     let TotalMap = new Map();
@@ -464,37 +472,16 @@ function LineChartProcessing(filterData) {
         }
         TotalMap.set(value["Age"], TotalMap.get(value["Age"]) + 1);
     })
-    // 计算各百分比
-    // TotalMap.forEach((value, key) =>{
-    //     MaleMap.set(key, Math.ceil(MaleMap.get(key)/value)* 100);
-    //     FemaleMap.set(key, Math.ceil(FemaleMap.get(key)/value) * 100);
-    //     console.log(key+"::::"+MaleMap.get(key)+"::::"+FemaleMap.get(key))
-    // })
-    // 转成数组
-    // 各种年龄
     let AgeList = Array.from(TotalMap.keys());
-    // 各职业睡眠水平为正常人数
     let MaleList = Array.from(MaleMap.values());
-    // 各职业睡眠水平不正常人数
     let FemaleList = Array.from(FemaleMap.values());
-    // 各职业总的人数
     let TotalList = Array.from(TotalMap.values());
-    // 去除末尾0
-    // while (MaleList[MaleList.length - 1] === 0) {
-    //     MaleList.pop();
-    // }
-    // while (FemaleList[FemaleList.length - 1] === 0) {
-    //     FemaleList.pop();
-    // }
-    // while (TotalList[TotalList.length - 1] === 0) {
-    //     TotalList.pop();
-    // }
     LineChart(AgeList, MaleList, FemaleList, TotalList);
 }
 
 function LineChart(AgeList, MaleList, FemaleList, TotalList) {
-    var MaleColor = '#ff0505';
-    var FemaleColor = '#3e7cb0';
+    var MaleColor = '#779649';
+    var FemaleColor = '#bba1cb';
     var AcitveColor = 'orange';
     const svg = d3.select("body")
         .append("svg")
@@ -505,55 +492,53 @@ function LineChart(AgeList, MaleList, FemaleList, TotalList) {
         .append("g")
         .attr("transform", "translate(" + margin.left + ",-" + margin.top + ")");
 
-    // 在SVG元素中定义箭头marker
     svg.append("defs").append("marker")
-        .attr("id", "arrow-x2")        // arrow的ID，用于后续引用
-        .attr("viewBox", "0 0 10 10") // 箭头的坐标系统
-        .attr("refX", 3)            // 箭头X方向上的参考点
-        .attr("refY", 7)            // 箭头Y方向上的参考点
-        .attr("markerWidth", 3)     // 箭头的宽度
-        .attr("markerHeight", 3)    // 箭头的高度
-        .attr("orient", "0") // 箭头的方向根据线条自动调整
-        .append("path")             // 设置箭头的形状
+        .attr("id", "arrow-x2")
+        .attr("viewBox", "0 0 10 10")
+        .attr("refX", 3)
+        .attr("refY", 7)
+        .attr("markerWidth", 5)
+        .attr("markerHeight", 5)
+        .attr("orient", "0")
+        .append("path")
         .attr("d", "M 0 0 L 10 5 L 0 10 z")
-        .style("fill", "#555");    // 设置箭头的颜色
+        .style("fill", "#555");
     svg.append("defs").append("marker")
-        .attr("id", "arrow-y2")        // arrow的ID，用于后续引用
-        .attr("viewBox", "0 0 10 10") // 箭头的坐标系统
-        .attr("refX", 3)            // 箭头X方向上的参考点
-        .attr("refY", 3)            // 箭头Y方向上的参考点
-        .attr("markerWidth", 3)     // 箭头的宽度
-        .attr("markerHeight", 3)    // 箭头的高度
-        .attr("orient", "270") // 箭头的方向根据线条自动调整
-        .append("path")             // 设置箭头的形状
+        .attr("id", "arrow-y2")
+        .attr("viewBox", "0 0 10 10")
+        .attr("refX", 3)
+        .attr("refY", 3)
+        .attr("markerWidth", 5)
+        .attr("markerHeight", 5)
+        .attr("orient", "270")
+        .append("path")
         .attr("d", "M 0 0 L 10 5 L 0 10 z")
-        .style("fill", "#555");    // 设置箭头的颜色
+        .style("fill", "#555");
 
-    // 定义 x 和 y 的比例尺
     const xScale = d3.scaleBand()
         .domain(AgeList.map((d) => d))
         .range([0, width])
         .padding(0.4);
     const yScale = d3.scaleLinear()
-        .domain([-1, d3.max(TotalList)])
+        .domain([-1, d3.max([d3.max(MaleList), d3.max(FemaleList)]) + 1])
         .range([height, 100]);
-    // 创建 x 和 y 轴
+
     svg.append("g")
         .attr("class", "axis x-axis")
         .attr("transform", "translate(0," + height + ")")
-        .attr('stroke-width', 2)
+        .attr('stroke-width', 12)
         .call(d3.axisBottom(xScale))
         .attr("marker-end", "url(#arrow-x2)")
         .selectAll('text')
-        .style('fill', '#000')  // 改变文字颜色
+        .style('fill', '#000')
         .style('font-size', '20px');
     svg.append("g")
         .attr("class", "axis y-axis")
-        .attr('stroke-width', 2)
+        .attr('stroke-width', 12)
         .call(d3.axisLeft(yScale))
         .attr("marker-end", "url(#arrow-y2)")
         .selectAll('text')
-        .style('fill', '#000')  // 改变文字颜色
+        .style('fill', '#000')
         .style('font-size', '20px');
 
     var line = d3.line()
@@ -568,103 +553,171 @@ function LineChart(AgeList, MaleList, FemaleList, TotalList) {
             return xScale(AgeList[i]);
         })
         .y(function (d) {
-            return yScale(d)+5;
+            return yScale(d) + 5;
         });
     svg.append("path")
-        .attr("class","male")
+        .attr("class", "male")
         .datum(MaleList)
         .attr("fill", "none")
         .attr("stroke", MaleColor)
-        .attr("stroke-width", 12)
-        .attr("d", line)
         .on("mouseover", function (d, i) {
-            d3.select(this).attr("stroke", AcitveColor);
-            console.log("Data: " + MaleList[i]);
-            d3.select(`.male`).attr("d",line2).style("cursor","pointer");
-            console.log("=============")
-            svg.selectAll(".dot")
-                .data(MaleList)
-                .enter().append("circle")
-                .attr("class", "dot")
-                .attr("cx", function (d, i) {
-                    return xScale(AgeList[i]);
-                })
-                .attr("cy", function (d) {
-                    return yScale(d);
-                })
-                .attr("r", 10).style("fill", "red");
-            svg.selectAll(".text")
-                .data(MaleList)
-                .enter().append("text") // 为每个数据点添加 text
-                .attr("class", "word")
-                .attr("x", function (d, i) {
-                    return xScale(AgeList[i]);
-                })
-                .attr("y", function (d) {
-                    return yScale(d);
-                })
-                .attr("dy", "-1em") // 设置偏移使得文字不会与数据点重叠
-                .text(function (d, i) {
-                    return d;
-                });
+            d3.select(this).attr("stroke-width", 16)
+            // .attr("stroke", AcitveColor);
+            d3.select(`.male`).attr("d", line2).style("cursor", "pointer");
         })
         .on("mouseout", function (d, i) {
-            d3.select(this).attr("stroke", MaleColor);
-            d3.select(`.male`).attr("d",line);
-            d3.selectAll(".word").remove();
-            d3.selectAll(".dot").remove();
-        });
+            d3.select(this).attr("stroke", MaleColor).attr("stroke-width", 6);
+            d3.select(`.male`).attr("d", line);
+        })
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-linecap", "round")
+        .attr("stroke-width", 6)
+        .attr("d", line)
+        .attr("stroke-dasharray", function () {
+            return this.getTotalLength();
+        })
+        .attr("stroke-dashoffset", function () {
+            return this.getTotalLength();
+        })
+        .transition()
+        .duration(2000)
+        .ease(d3.easeLinear)
+        .attr("stroke-dashoffset", 0);
     svg.append("path")
-        .attr("class","female")
+        .attr("class", "female")
         .datum(FemaleList)
         .attr("fill", "none")
         .attr("stroke", FemaleColor)
-        .attr("stroke-width", 12)
+        .attr("stroke-width", 6)
         .attr("d", line)
         .on("mouseover", function (d, i) {
-            d3.select(this).attr("stroke", AcitveColor);
-            d3.select(`.female`).attr("d",line2).style("cursor","pointer");
-            svg.selectAll(".dot")
-                .data(FemaleList)
-                .enter().append("circle")
-                .attr("class", "dot")
-                .attr("cx", function (d, i) {
-                    return xScale(AgeList[i]);
-                })
-                .attr("cy", function (d) {
-                    return yScale(d);
-                })
-                .attr("r", 10).style("fill", "red");
-            svg.selectAll(".text")
-                .data(FemaleList)
-                .enter().append("text") // 为每个数据点添加 text
-                .attr("class", "word")
-                .attr("x", function (d, i) {
-                    return xScale(AgeList[i]);
-                })
-                .attr("y", function (d) {
-                    return yScale(d);
-                })
-                .attr("dy", "-1em") // 设置偏移使得文字不会与数据点重叠
-                .text(function (d, i) {
-                    return d;
-                });
-            console.log("Data: " + FemaleList[i]);
+            d3.select(this).attr("stroke-width", 16)
+            // .attr("stroke", AcitveColor);
+            d3.select(`.female`).attr("d", line2).style("cursor", "pointer");
         })
         .on("mouseout", function (d, i) {
-            d3.select(this).attr("stroke", FemaleColor);
-            d3.select(`.female`).attr("d",line);
-            d3.selectAll(".word").remove();
-            d3.selectAll(".dot").remove();
-        });
+            d3.select(this).attr("stroke", FemaleColor).attr("stroke-width", 6);
+            d3.select(`.female`).attr("d", line);
+        })
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-linecap", "round")
+        .attr("stroke-dasharray", function () {
+            return this.getTotalLength();
+        })
+        .attr("stroke-dashoffset", function () {
+            return this.getTotalLength();
+        })
+        .transition()
+        .duration(2000)
+        .ease(d3.easeLinear)
+        .attr("stroke-dashoffset", 0);
 
+    svg.selectAll(".dot")
+        .data(MaleList)
+        .enter().append("circle")
+        .attr("id", (d, i) => {
+            return "dot_" + i;
+        })
+        .attr("class", "dot")
+        .on("mouseover", function () {
+            d3.select(this)
+                .transition()
+                .duration(500)
+                .attr("r", 18);
+            svg.selectAll(".text")
+                .data(MaleList)
+                .enter()
+                .append("text")
+                .attr("class", "word")
+                .text((d, i) => {
+                    if (("dot_" + i) == this.id) {
+                        return d;
+                    }
+                })
+                .attr("x", (d, i) => (xScale.bandwidth()) * 1.68 * i + xScale.bandwidth())
+                .attr("y", (d) => yScale(d) - 5)
+                .attr("text-anchor", "middle")
+                .attr("fill", "black")
+                .attr("font-size", "28px")
+                .style('color',MaleColor)
+        })
+        .on("mouseout", function () {
+            d3.select(this)
+                .transition()
+                .duration(500)
+                .attr("r", 12);
+            d3.selectAll('.word').remove();
+        })
+        .attr("cx", function (d, i) {
+            return xScale(AgeList[i]);
+        })
+        .attr("cy", function (d) {
+            return yScale(d);
+        })
+        .attr("r", 0).style("fill", MaleColor)
+        .transition()
+        .duration(500)
+        .delay(function (d, i) {
+            return i * 80;
+        })
+        .attr("r", 12);
+    svg.selectAll(".dot1")
+        .data(FemaleList)
+        .enter().append("circle")
+        .attr("id", (d, i) => {
+            return "dot1_" + i;
+        })
+        .attr("class", "dot")
+        .on("mouseover", function () {
+            d3.select(this)
+                .transition()
+                .duration(500)
+                .attr("r", 18)
+                .attr("fill", "blue");
+            svg.selectAll(".text")
+                .data(FemaleList)
+                .enter()
+                .append("text")
+                .attr("class", "word")
+                .text((d, i) => {
+                    if (("dot1_" + i) == this.id) {
+                        return d;
+                    }
+                })
+                .attr("x", (d, i) => (xScale.bandwidth()) * 1.68 * i + xScale.bandwidth())
+                .attr("y", (d) => yScale(d) - 5)
+                .attr("text-anchor", "middle")
+                .attr("fill", "black")
+                .attr("font-size", "28px")
+        })
+        .on("mouseout", function () {
+            d3.select(this)
+                .transition()
+                .duration(500)
+                .attr("r", 12)
+                .attr("fill", "red");
+            d3.selectAll('.word').remove();
+        })
+        .attr("cx", function (d, i) {
+            return xScale(AgeList[i]);
+        })
+        .attr("cy", function (d) {
+            return yScale(d);
+        })
+        .attr("r", 0).style("fill", FemaleColor)
+        .transition()
+        .duration(500)
+        .delay(function (d, i) {
+            return i * 80;
+        })
+        .attr("r", 12);
 
     svg.selectAll(".axis line").remove();
-    svg.append("text")
-        .attr("class", "title")
-        .attr("x", svgWidth / 3)
-        .attr("y", svgHeight)
-        .text("图二 各年龄男女睡眠情况折线图")
+    // svg.append("text")
+    //     .attr("class", "title")
+    //     .attr("x", svgWidth / 3)
+    //     .attr("y", svgHeight)
+    //     .text("图二 各年龄男女睡眠情况折线图")
     svg.append("text")
         .attr("class", "shaft")
         .attr("x", -20)
@@ -672,11 +725,10 @@ function LineChart(AgeList, MaleList, FemaleList, TotalList) {
         .text("人数")
     svg.append("text")
         .attr("class", "shaft")
-        .attr("x", svgWidth - margin.left * 5)
+        .attr("x", svgWidth - margin.left * 3)
         .attr("y", height + margin.top + margin.bottom)
         .text("年龄")
 
-    //图例数组，格式可自定义
     var data_legend = [
         {
             "name": "男性",
@@ -694,64 +746,7 @@ function LineChart(AgeList, MaleList, FemaleList, TotalList) {
         .attr("class", "legend")
         .attr("transform", function (d, i) {
             return "translate(-30," + (i * 30 + 60) + ")";
-        })
-        .on("mouseover", function (d, i) {
-            svg.selectAll(".dot")
-                .data(MaleList)
-                .enter().append("circle")
-                .attr("class", "dot")
-                .attr("cx", function (d, i) {
-                    return xScale(AgeList[i]);
-                })
-                .attr("cy", function (d) {
-                    return yScale(d);
-                })
-                .attr("r", 10).style("fill", "red");
-            svg.selectAll(".text")
-                .data(MaleList)
-                .enter().append("text") // 为每个数据点添加 text
-                .attr("class", "word")
-                .attr("x", function (d, i) {
-                    return xScale(AgeList[i]);
-                })
-                .attr("y", function (d) {
-                    return yScale(d);
-                })
-                .attr("dy", "-1em") // 设置偏移使得文字不会与数据点重叠
-                .text(function (d, i) {
-                    return d;
-                });
-            svg.selectAll(".dot1")
-                .data(FemaleList)
-                .enter().append("circle")
-                .attr("class", "dot")
-                .attr("cx", function (d, i) {
-                    return xScale(AgeList[i]);
-                })
-                .attr("cy", function (d) {
-                    return yScale(d);
-                })
-                .attr("r", 10).style("fill", "red");
-            svg.selectAll(".text1")
-                .data(FemaleList)
-                .enter().append("text") // 为每个数据点添加 text
-                .attr("class", "word")
-                .attr("x", function (d, i) {
-                    return xScale(AgeList[i]);
-                })
-                .attr("y", function (d) {
-                    return yScale(d);
-                })
-                .attr("dy", "-1em") // 设置偏移使得文字不会与数据点重叠
-                .text(function (d, i) {
-                    return d;
-                });
-        })
-        .on("mouseout", function (d, i) {
-            d3.selectAll(".word").remove();
-            d3.selectAll(".dot").remove();
         });
-    ;
     legend.append("rect")
         .attr("x", width - 25)
         .attr("y", 8)
@@ -763,7 +758,7 @@ function LineChart(AgeList, MaleList, FemaleList, TotalList) {
     legend.append("text")
         .attr("x", width - 40)
         .attr("y", 15)
-        .style("text-anchor", "end") //样式对齐
+        .style("text-anchor", "end")
         .text(function (d) {
             return d.name;
         });
@@ -797,9 +792,8 @@ function PieChartProcesing(filterData) {
 }
 
 function PieChart(data, arr) {
-    // 假设我们有以下数据
     var radius = Math.min(svgWidth, svgHeight) / 3;
-    var color = d3.scaleOrdinal(d3.schemeCategory10); //颜色比例尺
+    var color = d3.scaleOrdinal(d3.schemeCategory10);
 
     var svg = d3.select("body").append("svg")
         .attr("class", "pie chart")
@@ -807,32 +801,30 @@ function PieChart(data, arr) {
         .attr("height", svgHeight)
         .attr("transform", "translate(0,30)")
         .append("g")
-        // .attr("transform", "scale(0.1,0.3)")
         .attr("transform", "translate(" + svgWidth / 2 + "," + svgHeight / 2 + ")");
 
-    var pie = d3.pie(); //创建饼图布局
+    var pie = d3.pie();
 
-    var arc = d3.arc()  // 创建弧形生成器
+    var arc = d3.arc()
         .innerRadius(0)
         .outerRadius(radius);
 
     var arcs = svg.selectAll("g.arc")
-        .data(pie(data))  //使用饼图布局处理数据
+        .data(pie(data))
         .enter()
         .append("g")
         .attr("class", "arc");
 
-    arcs.append("path")   // 为每个扇区插入一个路径
+    arcs.append("path")
         .attr("fill", function (d, i) {
-            return color(i);  //颜色用比例尺映射
+            return color(i);
         })
         .attr("d", arc)
         .on("mouseover", function (d, i) {
-            // 在鼠标移入时，放大切片的外半径
             d3.select(this)
                 .transition()
                 .duration(200)
-                .attr("d", d3.arc().innerRadius(0).outerRadius(radius * 1.2));  // outerRadius增大10%
+                .attr("d", d3.arc().innerRadius(0).outerRadius(radius * 1.2));
 
             arcs.append("text")
                 .attr("id", "legend_text")
@@ -847,14 +839,24 @@ function PieChart(data, arr) {
                 });
         })
         .on("mouseout", function (d, i) {
-            // 在鼠标移出时，恢复切片的外半径
             d3.select(this)
                 .transition()
                 .duration(200)
-                .attr("d", d3.arc().innerRadius(0).outerRadius(radius));  // outerRadius恢复原状
+                .attr("d", d3.arc().innerRadius(0).outerRadius(radius));
 
-            // 在鼠标移出时，移除切片上的文本
             arcs.selectAll("#legend_text").remove();
+        })
+        .transition()   // 在此处开始一个简单的动画
+        .delay(function (d, i) {
+            return i * 600;
+        }) // 这里是动画延迟
+        .duration(600)
+        .attrTween('d', function (d) {
+            var i = d3.interpolate(d.startAngle + 0.1, d.endAngle);
+            return function (t) {
+                d.endAngle = i(t);
+                return arc(d);
+            }
         });
     arcs.append("text")
         .attr("transform", function (d) {
@@ -867,11 +869,11 @@ function PieChart(data, arr) {
             return arr[i]
         });
 
-    svg.append("text")
-        .attr("class", "title")
-        .attr("x", -width / 10)
-        .attr("y", height / 2)
-        .text("图三 睡眠情况饼状图")
+    // svg.append("text")
+    //     .attr("class", "title")
+    //     .attr("x", -width / 10)
+    //     .attr("y", height / 2)
+    //     .text("图三 睡眠情况饼状图")
 
     var data_legend = [
         {
@@ -887,7 +889,6 @@ function PieChart(data, arr) {
             "color": color(2)
         }
     ];
-    // let data_legend = data.map((key, i) => ({ [key]: color[i] }));
     var legend = svg.selectAll(".legend")
         .data(data_legend)
         .enter().append("g")
@@ -922,7 +923,7 @@ function PieChart(data, arr) {
     legend.append("text")
         .attr("x", width / 2 - 40)
         .attr("y", 25)
-        .style("text-anchor", "end") //样式对齐
+        .style("text-anchor", "end")
         .text(function (d) {
             return d.name;
         });
@@ -943,6 +944,5 @@ function init() {
     b.append("h1").style("top", "20%").text("睡眠健康和生活方式数据集");
     b.append("h2").attr("class", "word").text(`数据来源:https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset/data;`);
     b.append("h2").attr("class", "word").text(`睡眠健康和生活方式数据集由 400 行和 13 列组成，涵盖与睡眠和日常习惯相关的广泛变量。它包括性别、年龄、职业、睡眠时长、睡眠质量、体力活动水平、压力水平、BMI类别、血压、心率、每日步数以及是否存在睡眠障碍等详细信息。`);
-
 
 }
